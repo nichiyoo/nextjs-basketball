@@ -213,7 +213,7 @@ app.post('/reservations/:court_id', async (c) => {
 		const today = new Date();
 		const dateStart = add(today, { days: 1 });
 		const dateEnd = add(dateStart, { months: 1 });
-		if (result.date < dateStart || result.date > dateEnd) {
+		if (result.date < today || result.date > dateEnd) {
 			throw new Error('Date is out of range');
 		}
 

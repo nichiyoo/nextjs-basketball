@@ -51,7 +51,7 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 	const end = 23;
 
 	const today = new Date();
-	const dateStart = today;
+	const dateStart = add(today, { days: 1 });
 	const dateEnd = add(dateStart, { months: 1 });
 
 	const { toast } = useToast();
@@ -83,12 +83,7 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 						date: date.toISOString(),
 					},
 				});
-
 				setReserved(data.data);
-				toast({
-					title: 'Successfully fetched reservations',
-					description: data.message,
-				});
 			} catch (error: unknown) {
 				if (isAxiosError(error)) {
 					toast({
@@ -172,7 +167,7 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 											mode='single'
 											selected={field.value}
 											onSelect={field.onChange}
-											disabled={(date) => date < dateStart || date > dateEnd}
+											disabled={(date) => date < today || date > dateEnd}
 											initialFocus
 										/>
 									</PopoverContent>

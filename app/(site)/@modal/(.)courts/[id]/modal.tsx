@@ -15,9 +15,9 @@ const Modal: React.FC<React.PropsWithChildren> = ({ children }) => {
 			onOpenChange={(open) => {
 				if (!open) router.back();
 			}}>
-			<DialogContent className='max-w-2xl'>
+			<DialogContent className='max-w-3xl max-h-[60vh] overflow-y-scroll scrollbar-none p-8'>
 				<DialogHeader>
-					<DialogTitle>Create Rerservation</DialogTitle>
+					<DialogTitle className='text-2xl font-semibold'>Create Rerservation</DialogTitle>
 					<DialogDescription>Complete your reservation details</DialogDescription>
 				</DialogHeader>
 				{children}

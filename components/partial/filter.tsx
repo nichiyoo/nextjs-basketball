@@ -29,16 +29,16 @@ export const Filter: React.FC<FilterProps> = ({ className }: FilterProps) => {
 		size: searchParams.get('size') || 'all',
 	});
 
-	// React.useEffect(() => {
-	// 	const search = new URLSearchParams();
+	React.useEffect(() => {
+		const search = new URLSearchParams();
 
-	// 	search.set('location', params.location);
-	// 	search.set('type', params.type);
-	// 	search.set('size', params.size);
+		search.set('location', params.location);
+		search.set('type', params.type);
+		search.set('size', params.size);
 
-	// 	const out = search.toString();
-	// 	router.push('?' + out);
-	// }, [params, router]);
+		const out = search.toString();
+		router.push('?' + out);
+	}, [params, router]);
 
 	return (
 		<div
