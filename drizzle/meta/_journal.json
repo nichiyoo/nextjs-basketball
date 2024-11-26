@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1732530617253,
+      "tag": "0000_bored_silhouette",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1732531736943,
+      "tag": "0001_tricky_raider",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1732541404465,
+      "tag": "0002_nervous_boomerang",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1732585868933,
+      "tag": "0003_magenta_colleen_wing",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1732589241983,
+      "tag": "0004_striped_ender_wiggin",
+      "breakpoints": true
+    }
+  ]
+}
