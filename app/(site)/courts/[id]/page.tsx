@@ -31,6 +31,11 @@ export default async function Page({ params }: PageProps): Promise<React.JSX.Ele
 
 	return (
 		<div>
+			<div className='mb-4'>
+				<h1 className='font-semibold text-3xl'>Create Rerservation</h1>
+				<p className='text-muted-foreground'>Complete your reservation details</p>
+			</div>
+
 			<ReservationForm court={court.data} />
 		</div>
 	);

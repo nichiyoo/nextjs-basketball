@@ -1,1 +1,0 @@
-ALTER TABLE `court_table` ADD `size` text NOT NULL;

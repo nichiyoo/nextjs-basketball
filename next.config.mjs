@@ -4,7 +4,7 @@ const nextConfig = {
 		remotePatterns: [
 			{
 				protocol: 'https',
-				hostname: 'loremflickr.com',
+				hostname: 'picsum.photos',
 				port: '',
 				pathname: '**',
 			},

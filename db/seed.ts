@@ -1,48 +1,55 @@
-import { courts, locations } from './schema';
+import 'dotenv/config';
 
-import { InferSelectModel } from 'drizzle-orm';
-import db from '../lib/drizzle';
-import { faker } from '@faker-js/faker';
+import * as schema from '../db/schema';
 
-faker.seed(1234);
+import { reset, seed } from 'drizzle-seed';
 
-const createRandomCourt = () => ({
-	name: faker.location.street() + ' Court',
-	description: faker.lorem.sentence(20),
-	size: faker.helpers.arrayElement(['full-court', 'half-court']),
-	type: faker.helpers.arrayElement(['indoor', 'outdoor']),
-	price: faker.number.float({ min: 15, max: 50, multipleOf: 0.5 }),
-	image: faker.image.urlLoremFlickr({ category: 'sports' }),
-});
+import { createClient } from '@libsql/client';
+import { drizzle } from 'drizzle-orm/libsql';
 
-const createRandomLocation = () => ({
-	name: faker.location.street(),
-	description: faker.lorem.sentence(20),
-	address: faker.location.streetAddress(),
-	city: faker.location.city(),
-	state: faker.location.state(),
-	latitude: faker.location.latitude(),
-	longitude: faker.location.longitude(),
-});
+const production = {
+	url: process.env.TURSO_DATABASE_URL!,
+	authToken: process.env.TURSO_AUTH_TOKEN!,
+};
 
-(async () => {
-	const locationsSeed = faker.helpers.multiple(createRandomLocation, {
-		count: 6,
+const development = {
+	url: process.env.SQLITE_FILE_NAME!,
+};
+
+export default async function main() {
+	const client = createClient(process.env.NODE_ENV === 'production' ? production : development);
+	const db = drizzle({
+		client,
 	});
 
-	await db.insert(locations).values(locationsSeed);
-	const select = await db.select().from(locations);
-
-	select.forEach(async (location: InferSelectModel<typeof locations>) => {
-		const courstSeed = faker.helpers.multiple(createRandomCourt, {
-			count: 10,
-		});
-
-		await db.insert(courts).values(
-			courstSeed.map((court) => ({
-				...court,
-				location_id: location.location_id,
-			}))
-		);
+	await reset(db, schema);
+	await seed(db, {
+		locations: schema.locations,
+		courts: schema.courts,
+	}).refine((fake) => {
+		return {
+			locations: {
+				columns: {
+					description: fake.loremIpsum({ sentencesCount: 2 }),
+					address: fake.streetAddress(),
+					city: fake.city(),
+				},
+				count: 3,
+			},
+			courts: {
+				columns: {
+					name: fake.firstName(),
+					location_id: fake.int({ minValue: 1, maxValue: 3 }),
+					description: fake.loremIpsum({ sentencesCount: 2 }),
+					price: fake.valuesFromArray({ values: [20, 25, 30, 35] }),
+					size: fake.valuesFromArray({ values: ['full-court', 'half-court'] }),
+					type: fake.valuesFromArray({ values: ['indoor', 'outdoor'] }),
+					image: fake.default({ defaultValue: 'https://picsum.photos/400/300.webp' }),
+				},
+				count: 8,
+			},
+		};
 	});
-})();
+}
+
+main();

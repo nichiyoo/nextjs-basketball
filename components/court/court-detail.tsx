@@ -33,8 +33,8 @@ export function CourtDetailsCard({ court }: CourtDetailsCardProps) {
 					<TableBody>
 						{details.map((detail) => (
 							<TableRow key={detail.field}>
-								<TableCell className='p-2 font-medium'>{detail.field}</TableCell>
-								<TableCell className='p-2'>{detail.value}</TableCell>
+								<TableCell className='py-2 font-medium'>{detail.field}</TableCell>
+								<TableCell className='py-2'>{detail.value}</TableCell>
 							</TableRow>
 						))}
 					</TableBody>

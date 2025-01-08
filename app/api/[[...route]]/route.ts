@@ -1,10 +1,10 @@
 import * as z from 'zod';
 
+import { add, startOfDay } from 'date-fns';
 import { and, eq, inArray } from 'drizzle-orm';
 import { courts, orders, reservations } from '@/db/schema';
 
 import { Hono } from 'hono';
-import { add } from 'date-fns';
 import db from '@/lib/drizzle';
 import { handle } from 'hono/vercel';
 
@@ -95,12 +95,17 @@ app.get('/courts/:id', async (c) => {
 
 app.get('/search', async (c) => {
 	try {
-		const query = c.req.query();
+		const query = c.req.query() as {
+			location?: string;
+			type: 'indoor' | 'outdoor' | 'all';
+			size: 'full-court' | 'half-court' | 'all';
+		};
+
 		const data = await db.query.courts.findMany({
 			where: and(
 				eq(courts.location_id, Number(query.location)).if(query.location && query.location !== 'all'),
-				eq(courts.type, query.type).if(query.type && query.type !== 'all'),
-				eq(courts.size, query.size).if(query.size && query.size !== 'all')
+				eq(courts.type, query.type as 'indoor' | 'outdoor').if(query.type && query.type !== 'all'),
+				eq(courts.size, query.size as 'full-court' | 'half-court').if(query.size && query.size !== 'all')
 			),
 		});
 
@@ -145,8 +150,9 @@ app.get('/reservations/:court_id', async (c) => {
 			});
 		}
 
+		const date = startOfDay(result.date);
 		const ordered = await db.query.orders.findMany({
-			where: and(eq(orders.court_id, result.court_id), eq(orders.date, result.date.toISOString())),
+			where: and(eq(orders.court_id, result.court_id), eq(orders.date, date)),
 		});
 
 		if (!ordered) {
@@ -211,14 +217,18 @@ app.post('/reservations/:court_id', async (c) => {
 		}
 
 		const today = new Date();
-		const dateStart = add(today, { days: 1 });
-		const dateEnd = add(dateStart, { months: 1 });
-		if (result.date < today || result.date > dateEnd) {
-			throw new Error('Date is out of range');
-		}
+
+		const day = startOfDay(today);
+		const date = startOfDay(result.date);
+		const start = add(day, { days: 1 });
+		const end = add(start, { months: 1 });
+
+		console.log(date);
+
+		if (date < start || date > end) throw new Error('Date is out of range');
 
 		const ordered = await db.query.orders.findMany({
-			where: and(eq(orders.court_id, result.court_id), eq(orders.date, result.date.toISOString())),
+			where: and(eq(orders.court_id, result.court_id), eq(orders.date, date)),
 		});
 
 		if (ordered) {
@@ -229,7 +239,7 @@ app.post('/reservations/:court_id', async (c) => {
 				),
 			});
 
-			if (reserved.map((r) => r.hour.toString()).some((r) => result.timetables.includes(r))) {
+			if (reserved.map((item) => item.hour.toString()).some((hour) => result.timetables.includes(hour))) {
 				throw new Error('This time slot is already reserved');
 			}
 		}
@@ -237,8 +247,8 @@ app.post('/reservations/:court_id', async (c) => {
 		const inserted = await db
 			.insert(orders)
 			.values({
+				date: date,
 				court_id: result.court_id,
-				date: result.date.toISOString(),
 				duration: result.timetables.length,
 				total: result.players * result.timetables.length,
 			})

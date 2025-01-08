@@ -14,9 +14,9 @@ import { cn, formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { CalendarIcon } from 'lucide-react';
-import { CourtDetailsCard } from '../court/court-detail';
+import { CourtDetailsCard } from '@/components/court/court-detail';
 import { Input } from '@/components/ui/input';
-import { Label } from '../ui/label';
+import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,17 +35,6 @@ const reservationSchema = z.object({
 	timetables: z.array(z.string()).nonempty('you must select at least one time slot'),
 });
 
-const useIsMounted = () => {
-	const isMounted = React.useRef(false);
-	React.useEffect(() => {
-		isMounted.current = true;
-		return () => {
-			isMounted.current = false;
-		};
-	}, []);
-	return isMounted;
-};
-
 export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props }) => {
 	const start = 0;
 	const end = 23;
@@ -55,7 +44,6 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 	const dateEnd = add(dateStart, { months: 1 });
 
 	const { toast } = useToast();
-	const isMounted = useIsMounted();
 
 	const form = useForm<z.infer<typeof reservationSchema>>({
 		resolver: zodResolver(reservationSchema),
@@ -73,11 +61,11 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 	}));
 
 	const [reserved, setReserved] = React.useState<Reservation[]>([]);
+	const date = form.watch('date');
 
 	React.useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const date = form.watch('date');
 				const { data } = await axios.get<ReservationReseponse>('/reservations/' + court.court_id, {
 					params: {
 						date: date.toISOString(),
@@ -87,8 +75,8 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 			} catch (error: unknown) {
 				if (isAxiosError(error)) {
 					toast({
-						title: 'Error fetching reservations',
-						description: error.response?.data?.message,
+						title: error.response?.data?.message,
+						description: error.response?.data?.error,
 					});
 				}
 				console.error(error);
@@ -96,7 +84,7 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 		};
 
 		fetchData();
-	}, [toast, form.watch('date')]);
+	}, [court, toast, date]);
 
 	const onSubmit = async (formData: z.infer<typeof reservationSchema>) => {
 		try {
@@ -105,7 +93,6 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 				...form.getValues(),
 				timetables: [],
 			});
-
 			toast({
 				title: 'Successfully created reservation',
 				description: data.message,
@@ -113,14 +100,12 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 		} catch (error) {
 			if (isAxiosError(error)) {
 				toast({
-					title: 'Error creating reservation',
-					description: error.response?.data?.message,
+					title: error.response?.data?.message,
+					description: error.response?.data?.error,
 				});
 			}
 		}
 	};
-
-	if (!isMounted.current) return null;
 
 	return (
 		<div className='space-y-6'>
@@ -138,7 +123,8 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 									<Input placeholder='your@email.com' {...field} />
 								</FormControl>
 								<FormDescription>
-									Make sure to input valid email address, this is required for us to send you the confirmation
+									Make sure to input valid email address, this is required for us to send you the
+									confirmation
 								</FormDescription>
 								<FormMessage />
 							</FormItem>
@@ -156,7 +142,10 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 										<FormControl>
 											<Button
 												variant='outline'
-												className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
+												className={cn(
+													'w-full pl-3 text-left font-normal',
+													!field.value && 'text-muted-foreground'
+												)}>
 												{field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
 												<CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
 											</Button>
@@ -223,7 +212,8 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 													key={time.value}
 													variant={field.value.includes(time.value) ? 'default' : 'outline'}
 													className={cn(
-														field.value.includes(time.value) && 'bg-primary text-primary-foreground',
+														field.value.includes(time.value) &&
+															'bg-primary text-primary-foreground',
 														check && 'opacity-50 cursor-not-allowed'
 													)}
 													disabled={check}

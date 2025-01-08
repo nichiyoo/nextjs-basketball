@@ -9,20 +9,7 @@ interface NavbarProps {
 	className?: string;
 }
 
-const menus = [
-	{
-		label: 'Courts',
-		href: '/courts',
-	},
-	{
-		label: 'Locations',
-		href: '/locations',
-	},
-	{
-		label: 'About',
-		href: '/about',
-	},
-];
+const menus: Array<{ label: string; href: string }> = [];
 
 export const Navbar: React.FC<NavbarProps> = ({ className }: NavbarProps) => {
 	return (
