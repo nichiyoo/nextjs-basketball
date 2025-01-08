@@ -20,9 +20,9 @@ export const CourtGrid: React.FC<CourtGridProps> = ({ courts }) => {
 	const [parent] = useAutoAnimate();
 
 	return (
-		<div className='grid grid-cols-2 lg:grid-cols-4 gap-6' ref={parent}>
+		<div className='grid grid-cols-2 lg:grid-cols-4 gap-6 motion-preset-blur-up motion-delay-200' ref={parent}>
 			{courts.map((court, index) => (
-				<Link key={court.court_id} href={'/courts/' + court.court_id}>
+				<Link key={court.court_id} href={'/courts/' + court.court_id} scroll={false}>
 					<CourtCard court={court} />
 				</Link>
 			))}

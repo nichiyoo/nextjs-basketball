@@ -21,11 +21,11 @@ import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-type CourtWithLocation = Court & { location: Location };
 type ReservationReseponse = { message: string; data: Reservation[] };
-
 interface ReservationProps {
-	court: CourtWithLocation;
+	court: Court & {
+		location: Location;
+	};
 }
 
 const reservationSchema = z.object({
@@ -72,6 +72,7 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 					},
 				});
 				setReserved(data.data);
+				form.resetField('timetables');
 			} catch (error: unknown) {
 				if (isAxiosError(error)) {
 					toast({
@@ -84,11 +85,11 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 		};
 
 		fetchData();
-	}, [court, toast, date]);
+	}, [court, toast, date, form]);
 
 	const onSubmit = async (formData: z.infer<typeof reservationSchema>) => {
 		try {
-			const { data } = await axios.post<ReservationReseponse>('/reservations/' + court.court_id, formData);
+			const { data } = await axios.post('/reservations/' + court.court_id, formData);
 			form.reset({
 				...form.getValues(),
 				timetables: [],

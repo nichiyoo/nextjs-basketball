@@ -20,6 +20,7 @@ const Modal: React.FC<React.PropsWithChildren> = ({ children }) => {
 					<DialogTitle className='text-2xl font-semibold'>Create Rerservation</DialogTitle>
 					<DialogDescription>Complete your reservation details</DialogDescription>
 				</DialogHeader>
+
 				{children}
 			</DialogContent>
 		</Dialog>
