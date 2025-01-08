@@ -38,6 +38,7 @@ export const courts = sqliteTable('court_table', {
 
 export const orders = sqliteTable('order_table', {
 	order_id: integer('order_id').primaryKey(),
+	transaction_id: text().unique().notNull(),
 	court_id: integer()
 		.references(() => courts.court_id, { onDelete: 'cascade', onUpdate: 'cascade' })
 		.notNull(),
@@ -58,20 +59,6 @@ export const reservations = sqliteTable('reservation_table', {
 		.references(() => orders.order_id, { onDelete: 'cascade', onUpdate: 'cascade' })
 		.notNull(),
 	hour: integer().notNull(),
-	created_at: integer('created_at', { mode: 'timestamp' }).notNull().default(current),
-	updated_at: integer('updated_at', { mode: 'timestamp' })
-		.notNull()
-		.default(current)
-		.$onUpdate(() => current),
-});
-
-export const payments = sqliteTable('payment_table', {
-	payment_id: integer('payment_id').primaryKey(),
-	order_id: integer()
-		.references(() => reservations.reservation_id, { onDelete: 'cascade', onUpdate: 'cascade' })
-		.notNull(),
-	amount: real().notNull(),
-	status: text().notNull(),
 	created_at: integer('created_at', { mode: 'timestamp' }).notNull().default(current),
 	updated_at: integer('updated_at', { mode: 'timestamp' })
 		.notNull()

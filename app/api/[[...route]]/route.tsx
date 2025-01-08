@@ -8,7 +8,7 @@ import { Court } from '@/lib/type';
 import { Hono } from 'hono';
 import PaymentNotificationEmail from '@/emails/payment-notification';
 import PaymentSuccessEmail from '@/emails/payment-success';
-import axios from '@/lib/axios';
+import axios, { isAxiosError } from '@/lib/axios';
 import db from '@/lib/drizzle';
 import { handle } from 'hono/vercel';
 import { render } from '@react-email/components';
@@ -198,7 +198,7 @@ app.post('/reservations/:court_id', async (c) => {
 		where: and(eq(orders.court_id, result.court_id), eq(orders.date, date)),
 	});
 
-	if (ordered) {
+	if (ordered && ordered.length > 0) {
 		const reserved = await db.query.reservations.findMany({
 			where: inArray(
 				reservations.order_id,
@@ -232,6 +232,7 @@ app.post('/reservations/:court_id', async (c) => {
 				date: date,
 				email: result.email,
 				court_id: result.court_id,
+				transaction_id: new Date().getTime().toString(),
 				duration: result.timetables.length,
 				total: result.timetables.length * court.price,
 			})
@@ -239,7 +240,7 @@ app.post('/reservations/:court_id', async (c) => {
 
 		await tx.insert(reservations).values(
 			result.timetables.map((timetable) => ({
-				order_id: order.court_id,
+				order_id: order.order_id,
 				hour: parseInt(timetable.slice(0, 2)),
 			}))
 		);
@@ -264,7 +265,7 @@ app.post('/reservations/:court_id', async (c) => {
 		process.env.MIDTRANS_API_URL as string,
 		{
 			transaction_details: {
-				order_id: order.order_id,
+				order_id: order.transaction_id,
 				gross_amount: order.total,
 				customer_details: {
 					email: order.email,
@@ -274,7 +275,7 @@ app.post('/reservations/:court_id', async (c) => {
 				},
 				item_details: [
 					{
-						id: order.order_id,
+						id: court.court_id,
 						name: court.name,
 						price: order.total,
 						quantity: order.duration,
@@ -341,7 +342,7 @@ app.post('/payments/callback', async (c) => {
 	] as const;
 
 	const schema = z.object({
-		order_id: z.coerce.number(),
+		order_id: z.string(),
 		signature_key: z.string(),
 		status_code: z.string(),
 		gross_amount: z.coerce.number(),
@@ -362,7 +363,7 @@ app.post('/payments/callback', async (c) => {
 	if (result.transaction_status !== 'settlement') return c.status(200);
 
 	const order = await db.query.orders.findFirst({
-		where: eq(orders.order_id, result.order_id),
+		where: eq(orders.transaction_id, result.order_id),
 		with: {
 			court: {
 				with: {
@@ -409,11 +410,12 @@ app.post('/payments/callback', async (c) => {
 });
 
 app.onError((err, c) => {
-	console.error(err);
+	console.error(isAxiosError(err) ? JSON.stringify(err.response?.data) : err);
+
 	return c.json(
 		{
 			message: 'Internal Server Error',
-			error: err.message,
+			error: isAxiosError(err) ? JSON.stringify(err.response?.data) : err.message,
 		},
 		500
 	);

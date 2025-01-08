@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { Body, Container, Head, Heading, Hr, Html, Link, Preview, Section, Text } from '@react-email/components';
+import { formatCurrency } from '@/lib/utils';
 
 interface PaymentNotificationEmailProps {
 	customerEmail: string;
@@ -66,11 +67,13 @@ export const PaymentNotificationEmail = ({
 							<tr className='details-row' style={styles.detailsRow}>
 								<td className='details-cell' style={styles.detailsCell}>
 									<Text style={styles.label}>Order ID:</Text>
-									<Text style={styles.value}>{orderDetails.orderId}</Text>
+									<Text style={styles.value}>
+										ORDER-{String(orderDetails.orderId).padStart(10, '0')}
+									</Text>
 								</td>
 								<td className='details-cell' style={styles.detailsCell}>
 									<Text style={styles.label}>Total Amount:</Text>
-									<Text style={styles.value}>${orderDetails.total.toFixed(2)}</Text>
+									<Text style={styles.value}>{formatCurrency(orderDetails.total)}</Text>
 								</td>
 							</tr>
 							<tr className='details-row' style={styles.detailsRow}>
