@@ -1,4 +1,5 @@
 import 'dotenv/config';
+
 import { defineConfig } from 'drizzle-kit';
 
 const production = {
@@ -13,7 +14,7 @@ const development = {
 const config = defineConfig({
 	out: './drizzle',
 	schema: './db/schema.ts',
-	dialect: 'sqlite',
+	dialect: process.env.NODE_ENV === 'production' ? 'turso' : 'sqlite',
 	dbCredentials: process.env.NODE_ENV === 'production' ? production : development,
 });
 

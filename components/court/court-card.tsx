@@ -2,9 +2,9 @@ import * as React from 'react';
 
 import { Court, Location } from '@/lib/type';
 import { CourtSize, CourtType, sizeOptions, typeOptions } from '@/lib/constant';
+import { cn, formatCurrency } from '@/lib/utils';
 
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
 
 interface CourtCardProps extends React.HTMLAttributes<HTMLDivElement> {
 	className?: string;
@@ -26,7 +26,7 @@ export const CourtCard: React.FC<CourtCardProps> = ({ court, className, ...props
 
 			<div className='absolute top-0 right-0 m-4'>
 				<div className='text-sm bg-primary rounded-lg px-2 py-1 text-white font-medium flex items-center gap-1'>
-					<span>${court.price}</span>
+					<span>{formatCurrency(court.price)}</span>
 					<span>/</span>
 					<span>hour</span>
 				</div>

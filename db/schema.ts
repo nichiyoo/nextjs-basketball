@@ -41,6 +41,7 @@ export const orders = sqliteTable('order_table', {
 	court_id: integer()
 		.references(() => courts.court_id, { onDelete: 'cascade', onUpdate: 'cascade' })
 		.notNull(),
+	email: text('email').notNull(),
 	total: real().notNull(),
 	duration: integer().notNull(),
 	date: integer('date', { mode: 'timestamp' }).notNull(),
@@ -89,6 +90,15 @@ export const courtRelations = relations(courts, (relation) => {
 		location: relation.one(locations, {
 			fields: [courts.location_id],
 			references: [locations.location_id],
+		}),
+	};
+});
+
+export const orderRelations = relations(orders, (relation) => {
+	return {
+		court: relation.one(courts, {
+			fields: [orders.order_id],
+			references: [courts.court_id],
 		}),
 	};
 });

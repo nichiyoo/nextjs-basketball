@@ -41,7 +41,7 @@ export default async function main() {
 					name: fake.firstName(),
 					location_id: fake.int({ minValue: 1, maxValue: 3 }),
 					description: fake.loremIpsum({ sentencesCount: 2 }),
-					price: fake.valuesFromArray({ values: [20, 25, 30, 35] }),
+					price: fake.valuesFromArray({ values: [200000, 350000, 500000] }),
 					size: fake.valuesFromArray({ values: ['full-court', 'half-court'] }),
 					type: fake.valuesFromArray({ values: ['indoor', 'outdoor'] }),
 					image: fake.default({ defaultValue: 'https://picsum.photos/400/300.webp' }),

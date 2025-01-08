@@ -3,6 +3,7 @@
 import * as React from 'react';
 import * as z from 'zod';
 
+import { CalendarIcon, Loader2 } from 'lucide-react';
 import { Court, Location, Reservation } from '@/lib/type';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -13,7 +14,6 @@ import { cn, formatCurrency } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { CalendarIcon } from 'lucide-react';
 import { CourtDetailsCard } from '@/components/court/court-detail';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,6 +36,8 @@ const reservationSchema = z.object({
 });
 
 export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props }) => {
+	const [loading, setLoading] = React.useState(false);
+
 	const start = 0;
 	const end = 23;
 
@@ -89,6 +91,7 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 
 	const onSubmit = async (formData: z.infer<typeof reservationSchema>) => {
 		try {
+			setLoading(true);
 			const { data } = await axios.post('/reservations/' + court.court_id, formData);
 			form.reset({
 				...form.getValues(),
@@ -105,6 +108,8 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 					description: error.response?.data?.error,
 				});
 			}
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -244,7 +249,10 @@ export const ReservationForm: React.FC<ReservationProps> = ({ court, ...props })
 					</div>
 
 					<div className='col-span-full'>
-						<Button type='submit'>Submit</Button>
+						<Button type='submit' disabled={loading}>
+							{loading && <Loader2 className='size-5 animate-spin' />}
+							Submit
+						</Button>
 					</div>
 				</form>
 			</Form>

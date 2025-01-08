@@ -15,5 +15,5 @@ const development = {
 
 export default drizzle({
 	schema,
-	connection: process.env.NODE_ENV === 'production' ? development : development,
+	connection: process.env.NODE_ENV === 'production' ? production : development,
 });

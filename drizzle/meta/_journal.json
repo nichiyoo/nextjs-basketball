@@ -8,6 +8,13 @@
       "when": 1736332455446,
       "tag": "0000_initialize",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1736341438287,
+      "tag": "0001_add_email_field_to_order_table",
+      "breakpoints": true
     }
   ]
 }

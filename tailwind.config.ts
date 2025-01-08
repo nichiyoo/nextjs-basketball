@@ -1,8 +1,9 @@
 import type { Config } from 'tailwindcss';
 import animate from 'tailwindcss-animate';
 import { fontFamily } from 'tailwindcss/defaultTheme';
-// @ts-expect-error no types yet for tailwindcss-motion
 import motion from 'tailwindcss-motion';
+
+// @ts-expect-error no types yet for tailwindcss-motion
 
 const config: Config = {
 	darkMode: ['class'],
@@ -10,6 +11,7 @@ const config: Config = {
 		'./pages/**/*.{js,ts,jsx,tsx,mdx}',
 		'./components/**/*.{js,ts,jsx,tsx,mdx}',
 		'./app/**/*.{js,ts,jsx,tsx,mdx}',
+		'./emails/**/*.{js,ts,jsx,tsx,mdx}',
 	],
 	theme: {
 		extend: {
