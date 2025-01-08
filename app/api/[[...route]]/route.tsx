@@ -409,6 +409,7 @@ app.post('/payments/callback', async (c) => {
 });
 
 app.onError((err, c) => {
+	console.error(err);
 	return c.json(
 		{
 			message: 'Internal Server Error',
